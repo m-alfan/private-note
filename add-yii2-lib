@@ -1,0 +1,132 @@
+### Setup composer with token github
+```
+composer config --global github-oauth.github.com <TOKEN>
+```
+
+### Create file composer.json in your dir app
+```
+{
+    "name": "Your app",
+    "description": "App",
+    "keywords": ["Muhamad", "Alfan"],
+    "homepage": "http://muhamadalfan.com/",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4.0",
+        "yiisoft/yii2": "~2.0.5",
+        "yiisoft/yii2-httpclient": "~2.0.0"
+    },
+    "require-dev": {
+        "yiisoft/yii2-debug": "~2.0.0",
+        "yiisoft/yii2-faker": "~2.0.0",
+        "codeception/base": "^2.2.3",
+        "codeception/verify": "~0.3.1",
+        "codeception/specify": "~0.4.3"
+    },
+    "config": {
+        "process-timeout": 1800
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    }
+}
+```
+
+### Require components composer asset fxp
+```
+composer global require "fxp/composer-asset-plugin:^1.2.0"
+```
+
+### Download package from your dir app
+```
+composer install -vvv
+```
+
+### Setup your app, create file common/config/main.php, common/config/params.php (gitignore), common/config/db.php (gitignore)
+common/config/main.php
+```
+<?php
+$params = require __DIR__ . '/params.php';
+$config = [
+    'id'         => 'portal-gadjian-hadirr',
+    'basePath'   => dirname(__DIR__),
+    'bootstrap'  => ['log'],
+    'aliases'    => [
+        '@common' => dirname(__DIR__),
+        '@vendor' => dirname(dirname(__DIR__)) . '/vendor',
+        '@bower'  => '@vendor/bower',
+    ],
+    'components' => [
+        'request' => [
+            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
+            'cookieValidationKey' => 'iniadalahsecretkeyuntukcookie',
+        ],
+        'cache'   => [
+            'class' => 'yii\caching\FileCache',
+        ],
+        'mailer'  => [
+            'class'            => 'yii\swiftmailer\Mailer',
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
+            'useFileTransport' => true,
+        ],
+        'log'     => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets'    => [
+                [
+                    'class'  => 'yii\log\FileTarget',
+                    'levels' => ['error'],
+                ],
+            ],
+        ],
+        'db'      => require __DIR__ . '/db.php',
+    ],
+    'params'     => $params,
+];
+return $config;
+```
+
+common/config/db.php
+```
+<?php
+return [
+    'class'    => 'yii\db\Connection',
+    'dsn'      => 'mysql:host=localhost;dbname=databasename',
+    'username' => 'root',
+    'password' => '',
+    'charset'  => 'utf8',
+];
+```
+
+common/config/params.php
+```
+<?php
+return [
+    'adminEmail'    => 'admin@fast-8.com',
+    
+    //other params
+];
+```
+
+common/config/.gitignore
+```
+# ignore core config default
+db.php
+params.php
+```
+
+### Add this script in index.php, after :
+`spl_autoload_register('menhook_autoload'); // line 60-70`
+```
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
+require(__DIR__ . '/../../vendor/autoload.php');
+require(__DIR__ . '/../../vendor/yiisoft/yii2/Yii.php');
+$config = require(__DIR__ . '/../../common/config/main.php');
+(new yii\web\Application($config));
+
+```
